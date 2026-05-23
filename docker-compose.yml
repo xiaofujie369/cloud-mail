@@ -1,0 +1,67 @@
+services:
+  cloud-mail:
+    build:
+      context: .
+      dockerfile: docker/cloud-mail/Dockerfile
+    restart: unless-stopped
+    environment:
+      MAIL_DOMAIN: ${MAIL_DOMAIN:-example.com}
+      MAIL_DOMAINS: ${MAIL_DOMAINS:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      ANALYSIS_CACHE: ${ANALYSIS_CACHE:-false}
+      ORM_LOG: ${ORM_LOG:-false}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+    volumes:
+      - cloud_mail_worker:/data
+    expose:
+      - "8787"
+
+  smtp-api:
+    build:
+      context: smtp-api
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      SMTP_DATA_DIR: /data
+      SMTP_API_TOKEN: ${SMTP_API_TOKEN:?set SMTP_API_TOKEN in .env}
+      SMTP_API_ALLOWED_ORIGINS: ${SMTP_API_ALLOWED_ORIGINS:-}
+      SMTP_HOST: ${SMTP_HOST:?set SMTP_HOST in .env}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMTP_REJECT_UNAUTHORIZED: ${SMTP_REJECT_UNAUTHORIZED:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:?set SMTP_FROM in .env}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Cloud Mail}
+      SMTP_RATE_LIMIT_MAX: ${SMTP_RATE_LIMIT_MAX:-60}
+      SMTP_RATE_LIMIT_WINDOW_MS: ${SMTP_RATE_LIMIT_WINDOW_MS:-60000}
+      SMTP_MAX_BODY_BYTES: ${SMTP_MAX_BODY_BYTES:-1048576}
+      SMTP_MAX_RECIPIENTS: ${SMTP_MAX_RECIPIENTS:-50}
+    volumes:
+      - smtp_api_data:/data
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      - cloud-mail
+      - smtp-api
+    environment:
+      APP_HOST: ${APP_HOST:-:80}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  cloud_mail_worker:
+  smtp_api_data:
+  caddy_data:
+  caddy_config:

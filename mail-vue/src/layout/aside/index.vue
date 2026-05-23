@@ -31,13 +31,18 @@
           <Icon icon="fluent:settings-48-regular" width="20" height="20" />
           <span class="menu-name" style="margin-left: 21px">{{$t('settings')}}</span>
         </el-menu-item>
-        <div class="manage-title" v-perm="['all-email:query','user:query','role:query','setting:query','analysis:query','reg-key:query']">
+        <div class="manage-title" v-perm="['all-email:query','user:query','role:query','setting:query','analysis:query','reg-key:query','smtp:query']">
           <div>{{$t('manage')}}</div>
         </div>
         <el-menu-item @click="router.push({name: 'analysis'})" index="analysis" v-perm="'analysis:query'"
                       :class="route.meta.name === 'analysis' ? 'choose-item' : ''">
           <Icon icon="fluent:data-pie-20-regular" width="24" height="24" />
           <span class="menu-name" style="margin-left: 18px">{{$t('analytics')}}</span>
+        </el-menu-item>
+        <el-menu-item @click="router.push({name: 'smtp'})" index="smtp" v-perm="'smtp:query'"
+                      :class="route.meta.name === 'smtp' ? 'choose-item' : ''">
+          <Icon icon="mdi:email-fast-outline" width="22" height="22" />
+          <span class="menu-name" style="margin-left: 20px">SMTP API</span>
         </el-menu-item>
         <el-menu-item @click="router.push({name: 'user'})" index="setting" v-perm="'user:query'"
                       :class="route.meta.name === 'user' ? 'choose-item' : ''">

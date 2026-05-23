@@ -118,5 +118,15 @@ const routers = {
             name: 'analysis',
             menu: true
         }
+    }],
+    'smtp:query': [{
+        path: '/smtp',
+        name: 'smtp',
+        component: () => import('@/views/smtp/index.vue'),
+        meta: {
+            title: 'SMTP API',
+            name: 'smtp',
+            menu: true
+        }
     }]
 }

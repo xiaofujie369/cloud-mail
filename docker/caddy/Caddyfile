@@ -1,0 +1,17 @@
+{$APP_HOST:localhost:80} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer-when-downgrade
+		X-Frame-Options DENY
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	handle_path /smtp-api/* {
+		reverse_proxy smtp-api:8080
+	}
+
+	reverse_proxy cloud-mail:8787
+}
